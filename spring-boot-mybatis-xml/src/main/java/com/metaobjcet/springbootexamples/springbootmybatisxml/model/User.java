@@ -1,4 +1,4 @@
-package com.metaobject.springbootmybatisxml.model;
+package com.metaobjcet.springbootexamples.springbootmybatisxml.model;
 
 public class User {
 
