@@ -1,11 +1,7 @@
 spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/mydb
-    username: root
-    password: Finux@87
-    driver-class-name: com.mysql.cj.jdbc.Driver
+  profiles:
+    active: @activatedProperties@
 mybatis:
   config-location: classpath:mybatis/mybatis-config.xml
   mapper-locations: classpath:mybatis/mapper/*.xml
   type-aliases-package: com.metaobject.springbootexamples.springbootmybatisxml.model
-

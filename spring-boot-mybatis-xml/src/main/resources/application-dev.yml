@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    url: jdbc:sqlite::resource:db/spring-boot-mybatis-xml.sqlite
+    username:
+    password:
+    driver-class-name: org.sqlite.JDBC
+server:
+  port: 3000

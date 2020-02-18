@@ -198,7 +198,7 @@ public interface UserMapper {
 
 这里我们声明了一个 `getUserById` 接口，并指定其对应的 SQL 语句。
 
-我们还得在 `application.yml` 中添加一些设置，使得 Mybatis 可以找到 config 和 mapper 文件：
+我们还得在 `src/main/resources/application.yml` 中添加一些设置，使得 Mybatis 可以找到 config 和 mapper 文件：
 
 ```yml
 mybatis:
@@ -247,5 +247,108 @@ public class UserController {
 ```
 {"id":1,"name":"Johnny","age":42,"gender":"male"}
 ```
+
+## 6. 多环境设置
+
+我们在开发时，可能需要多种环境，比如典型的 dev（开发环境）、stage（上线前）、prod（生产环境）。在 Spring Boot 中也很容易实现。
+
+假设我们现在在开发环境下使用 sqlite 作为数据库进行测试，而在生产环境才使用 MySQL。
+
+首先，修改 `pom.xml` 文件，添加 `<profiles>` tag。
+
+```xml
+<profiles>
+    <profile>
+        <id>dev</id>
+        <properties>
+            <activatedProperties>dev</activatedProperties>
+        </properties>
+        <activation>
+            <activeByDefault>true</activeByDefault>
+        </activation>
+
+        <dependencies>
+            <dependency>
+                <groupId>org.xerial</groupId>
+                <artifactId>sqlite-jdbc</artifactId>
+            </dependency>
+        </dependencies>
+    </profile>
+
+    <profile>
+        <id>prod</id>
+        <properties>
+            <activatedProperties>dev</activatedProperties>
+        </properties>
+    </profile>
+</profiles>
+```
+
+这里指定了 dev 和 prod 开发环境，为 dev 环境指定了 sqlite-jdbc 的依赖，并将 dev 设置为默认环境。
+
+然后，将 `src/main/resources/application.yml` 内容修改为如下：
+
+```yml
+spring:
+  profiles:
+    active: @activatedProperties@
+mybatis:
+  config-location: classpath:mybatis/mybatis-config.xml
+  mapper-locations: classpath:mybatis/mapper/*.xml
+  type-aliases-package: com.metaobject.springbootexamples.springbootmybatisxml.model
+```
+
+新建一个 `src/main/resources/application-dev.yml`，添加如下内容：
+
+```yml
+spring:
+  datasource:
+    url: jdbc:sqlite::resource:db/spring-boot-mybatis-xml.sqlite
+    username:
+    password:
+    driver-class-name: org.sqlite.JDBC
+```
+
+注意这里需要 sqlite 数据库文件，我们可以使用 Intellij IDEA 的数据源工具新建此数据文件，建立 user 数据表，并添加一条记录（该记录应当与之前在 MySQL 中添加的不一样，以便我们后续可以看到差异）。
+
+新建一个 `src/main/resources/application-prod.yml`，添加如下内容：
+
+```yml
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/mydb
+    username: root
+    password: 
+    driver-class-name: com.mysql.cj.jdbc.Driver
+```
+
+此时我们再次运行项目，并访问 `http://localhost:8080/user/1`，就可以获取 sqlite 中存储的记录，比如我这里是：
+
+```
+{"id":1,"name":"Tom","age":1,"gender":"male"}
+```
+
+可见，默认运行的确实是 dev 环境。
+
+若需要更改运行环境，可以使用 `Run -> Edit Configurations` 菜单项打开运行设置窗口。
+
+![](./images/edit-config-1.png)
+
+并将 `Active profiles` 设置为 `prod` 即可。
+
+![](./images/edit-config-2.png)
+
+重新运行项目并访问 `http://localhost:8080/user/1`，又会得到之前我们存储在 MySQL 中的记录了。
+
+当然你也可以新建不同的运行设置来针对不同的环境，而非修改之前的设置。
+
+另外，我们还可以为不同的环境设置不同的端口，比如我们在 `src/main/resources/application-dev.yml` 中添加如下内容：
+
+```yml
+server:
+  port: 3000
+```
+
+我们就需要访问 `http://localhost:3000/user/1` 来获取用户数据了。
 
 (完)
