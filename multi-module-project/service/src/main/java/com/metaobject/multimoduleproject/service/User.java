@@ -1,4 +1,4 @@
-package com.metaobject.multimoduleproject.app;
+package com.metaobject.multimoduleproject.service;
 
 public class User {
 
