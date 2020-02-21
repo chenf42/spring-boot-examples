@@ -35,7 +35,7 @@
 
 使用同样的方式添加另一个名为 `service` 的子模块。
 
-我们得要把项目模块设置为各子模块的福模块，将 `app/pom.xml` 和 `service/pom.xml` 中的 `<parent>` tag 修改为如下内容：
+我们得要把项目模块设置为各子模块的父模块，将 `app/pom.xml` 和 `service/pom.xml` 中的 `<parent>` tag 修改为如下内容：
 
 ```xml
 <parent>
